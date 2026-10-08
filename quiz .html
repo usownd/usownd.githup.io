@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لعبة الأسئلة</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fff0f5, #ffe4ec, #fce4f0);
+    color: #5a3a4a;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 15px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 650px;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(255, 150, 190, 0.25);
+    border: 1px solid #ffd6e5;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.8em;
+    margin-bottom: 25px;
+    color: #d63384;
+    font-weight: 600;
+  }
+
+  label {
+    display: block;
+    margin: 12px 0 6px;
+    color: #a05070;
+    font-size: 0.95em;
+    font-weight: 500;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: 2px solid #ffd6e5;
+    background: #fff8fb;
+    color: #5a3a4a;
+    font-size: 1em;
+    transition: all 0.25s;
+    font-family: inherit;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    border-color: #ff8fb8;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(255, 143, 184, 0.15);
+  }
+
+  .choice-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .choice-row input[type="text"] { flex: 1; }
+
+  input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #ff6fa5;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: inherit;
+  }
+
+  .btn-primary {
+    background: #ff6fa5;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(255, 111, 165, 0.4);
+  }
+  .btn-primary:hover {
+    background: #ff528f;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 111, 165, 0.5);
+  }
+
+  .btn-secondary {
+    background: #fff0f6;
+    color: #d63384;
+    border: 2px solid #ffc7dd;
+  }
+  .btn-secondary:hover {
+    background: #ffe0ee;
+  }
+
+  .btn-link {
+    background: #e0f7ff;
+    color: #0086b3;
+    border: 2px solid #b3e5f5;
+    width: 100%;
+    margin-top: 10px;
+  }
+  .btn-link:hover {
+    background: #c9efff;
+  }
+
+  .btn-remove {
+    background: #fff0f0;
+    color: #e05252;
+    border: 1px solid #ffc9c9;
+    padding: 8px 12px;
+    font-size: 0.9em;
+    flex-shrink: 0;
+  }
+  .btn-remove:hover { background: #ffe0e0; }
+
+  .buttons-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .question-block {
+    background: #fff8fb;
+    padding: 18px;
+    border-radius: 16px;
+    margin-bottom: 15px;
+    border: 1px solid #ffe0ee;
+  }
+
+  .question-count {
+    text-align: center;
+    color: #a05070;
+    margin-bottom: 12px;
+    font-size: 0.95em;
+    font-weight: 500;
+  }
+
+  .question-text {
+    font-size: 1.35em;
+    text-align: center;
+    margin: 20px 0;
+    padding: 22px;
+    background: #fff0f6;
+    border-radius: 16px;
+    border: 1px solid #ffd6e5;
+    color: #5a3a4a;
+    font-weight: 600;
+  }
+
+  .answer-btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    background: #fff;
+    color: #5a3a4a;
+    border: 2px solid #ffd6e5;
+    border-radius: 14px;
+    font-size: 1.05em;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .answer-btn:hover:not(.disabled) {
+    background: #fff0f6;
+    border-color: #ff8fb8;
+    transform: translateY(-1px);
+  }
+
+  .answer-btn.correct {
+    background: #d4f5dd !important;
+    border-color: #4caf50 !important;
+    color: #1b5e20 !important;
+    animation: pop 0.5s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  .answer-btn.wrong {
+    background: #ffd6d6 !important;
+    border-color: #e05252 !important;
+    color: #8b1e1e !important;
+    animation: shake 0.5s ease;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+
+  .answer-btn.disabled { cursor: default; }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 600;
+    margin: 18px 0;
+    min-height: 35px;
+  }
+  .feedback.correct { color: #4caf50; }
+  .feedback.wrong { color: #e05252; }
+
+  .result-card {
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+  }
+  .result-score {
+    font-size: 3.5em;
+    font-weight: 700;
+    margin: 20px 0;
+    color: #d63384;
+  }
+  .result-msg {
+    font-size: 1.2em;
+    color: #a05070;
+    margin-bottom: 25px;
+  }
+
+  .hidden { display: none !important; }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #ffe0ee;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff8fb8, #ff6fa5);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+
+  .link-box {
+    margin-top: 15px;
+    padding: 15px;
+    background: #fff8fb;
+    border-radius: 14px;
+    border: 1px dashed #ffc7dd;
+    word-break: break-all;
+    font-size: 0.9em;
+    color: #5a3a4a;
+    display: none;
+  }
+  .link-box.show { display: block; }
+  .link-box input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    font-size: 0.85em;
+    background: #fff;
+    border: 1px solid #ffd6e5;
+    border-radius: 10px;
+    color: #5a3a4a;
+  }
+  .link-hint {
+    color: #a05070;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- شاشة الإنشاء -->
+  <div id="createScreen">
+    <h1>إنشاء لعبة الأسئلة</h1>
+    <div id="questionsList"></div>
+    <div class="buttons-row">
+      <button class="btn-secondary" onclick="addQuestion()">+ إضافة سؤال</button>
+      <button class="btn-primary" onclick="startGame()">ابدأ اللعبة</button>
+    </div>
+    <button class="btn-link" onclick="generateLink()">🔗 اعمل لينك للمشاركة</button>
+    <div class="link-box" id="linkBox">
+      <div class="link-hint">انسخ اللينك وابعته لصاحبك:</div>
+      <input type="text" id="linkInput" readonly onclick="this.select()">
+    </div>
+  </div>
+
+  <!-- شاشة اللعب -->
+  <div id="gameScreen" class="hidden">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="question-count" id="questionCounter"></div>
+    <div class="question-text" id="currentQuestion"></div>
+    <div id="answersContainer"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- شاشة النتيجة -->
+  <div id="resultScreen" class="hidden result-card">
+    <h1>النتيجة</h1>
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <button class="btn-primary" onclick="location.reload()">لعبة جديدة</button>
+  </div>
+
+</div>
+
+<script>
+  let questions = [];
+  let qIndex = 0;
+  let score = 0;
+
+  // ---------- تشفير / فك تشفير ----------
+  function encodeData(obj) {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+  }
+  function decodeData(str) {
+    return JSON.parse(decodeURIComponent(escape(atob(str))));
+  }
+
+  // ---------- شاشة الإنشاء ----------
+  function addQuestion() {
+    const div = document.createElement('div');
+    div.className = 'question-block';
+    div.innerHTML = `
+      <label>السؤال:</label>
+      <input type="text" class="q-text" placeholder="اكتب السؤال هنا...">
+      <label>الاختيارات (علّم على الإجابة الصح):</label>
+      <div class="choices-container"></div>
+      <button class="btn-secondary" style="font-size:0.9em; padding:8px 15px; margin-top:8px;" onclick="addChoice(this)">+ إضافة اختيار</button>
+      <button class="btn-remove" style="margin-top:8px;" onclick="this.parentElement.remove()">حذف السؤال</button>
+    `;
+    document.getElementById('questionsList').appendChild(div);
+    addChoice(div.querySelector('.btn-secondary'));
+    addChoice(div.querySelector('.btn-secondary'));
+  }
+
+  function addChoice(btn) {
+    const container = btn.parentElement.querySelector('.choices-container');
+    const count = container.children.length;
+    if (count >= 4) {
+      alert('أقصى عدد اختيارات هو 4');
+      return;
+    }
+    const row = document.createElement('div');
+    row.className = 'choice-row';
+    row.innerHTML = `
+      <input type="radio" name="correct-${Date.now()}-${Math.random()}" class="correct-radio">
+      <input type="text" class="choice-text" placeholder="الاختيار ${count + 1}">
+      ${count >= 2 ? '<button class="btn-remove" onclick="this.parentElement.remove()">X</button>' : ''}
+    `;
+    container.appendChild(row);
+  }
+
+  // ---------- جمع الأسئلة من الشاشة ----------
+  function collectQuestions() {
+    const blocks = document.querySelectorAll('.question-block');
+    const result = [];
+
+    for (const block of blocks) {
+      const qText = block.querySelector('.q-text').value.trim();
+      const choiceRows = block.querySelectorAll('.choice-row');
+      const choices = [];
+      let correctIndex = -1;
+
+      choiceRows.forEach((row) => {
+        const txt = row.querySelector('.choice-text').value.trim();
+        const isCorrect = row.querySelector('.correct-radio').checked;
+        if (txt) {
+          choices.push(txt);
+          if (isCorrect) correctIndex = choices.length - 1;
+        }
+      });
+
+      if (!qText) { alert('فيه سؤال فاضي!'); return null; }
+      if (choices.length < 2) { alert('كل سؤال لازم فيه اختيارين على الأقل'); return null; }
+      if (correctIndex === -1) { alert(`حدد الإجابة الصح للسؤال: "${qText}"`); return null; }
+
+      result.push({ text: qText, choices, correctIndex });
+    }
+
+    if (result.length === 0) {
+      alert('ضيف سؤال واحد على الأقل');
+      return null;
+    }
+    return result;
+  }
+
+  // ---------- بدء اللعبة ----------
+  function startGame() {
+    const q = collectQuestions();
+    if (!q) return;
+    questions = q;
+    qIndex = 0;
+    score = 0;
+    document.getElementById('createScreen').classList.add('hidden');
+    document.getElementById('gameScreen').classList.remove('hidden');
+    showQuestion();
+  }
+
+  // ---------- توليد اللينك ----------
+  function generateLink() {
+    const q = collectQuestions();
+    if (!q) return;
+
+    const encoded = encodeData(q);
+    const baseUrl = window.location.href.split('#')[0].split('?')[0];
+    const url = baseUrl + '#q=' + encoded;
+
+    const box = document.getElementById('linkBox');
+    const input = document.getElementById('linkInput');
+    input.value = url;
+    box.classList.add('show');
+    input.select();
+
+    try {
+      document.execCommand('copy');
+      alert('تم نسخ اللينك تلقائياً ✅ ابعته لصاحبك');
+    } catch(e) {
+      alert('انسخ اللينك من الخانة اللي تحت');
+    }
+  }
+
+  // ---------- عرض سؤال ----------
+  function showQuestion() {
+    const q = questions[qIndex];
+    document.getElementById('questionCounter').textContent = `السؤال ${qIndex + 1} من ${questions.length}`;
+    document.getElementById('progressFill').style.width = `${(qIndex / questions.length) * 100}%`;
+    document.getElementById('currentQuestion').textContent = q.text;
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+
+    const container = document.getElementById('answersContainer');
+    container.innerHTML = '';
+    q.choices.forEach((choice, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.textContent = choice;
+      btn.onclick = () => selectAnswer(i, btn);
+      container.appendChild(btn);
+    });
+  }
+
+  // ---------- اختيار إجابة ----------
+  function selectAnswer(selectedIndex, btn) {
+    const q = questions[qIndex];
+    const allBtns = document.querySelectorAll('.answer-btn');
+    allBtns.forEach(b => {
+      b.classList.add('disabled');
+      b.onclick = null;
+    });
+
+    const feedback = document.getElementById('feedback');
+
+    if (selectedIndex === q.correctIndex) {
+      btn.classList.add('correct');
+      feedback.textContent = 'إجابة صحيحة ✅';
+      feedback.className = 'feedback correct';
+      score++;
+    } else {
+      btn.classList.add('wrong');
+      allBtns[q.correctIndex].classList.add('correct');
+      feedback.textContent = 'إجابة خاطئة ❌';
+      feedback.className = 'feedback wrong';
+    }
+
+    setTimeout(() => {
+      qIndex++;
+      if (qIndex < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+    }, 1500);
+  }
+
+  // ---------- النتيجة ----------
+  function showResult() {
+    document.getElementById('gameScreen').classList.add('hidden');
+    document.getElementById('resultScreen').classList.remove('hidden');
+
+    const percent = (score / questions.length) * 100;
+    document.getElementById('resultScore').textContent = `${score} / ${questions.length}`;
+
+    let msg = '';
+    if (percent === 100) msg = 'ممتاز! كل الإجابات صح 🏆';
+    else if (percent >= 70) msg = 'أداء جيد جداً 👏';
+    else if (percent >= 50) msg = 'مش وحش، جرب تاني 💪';
+    else msg = 'محتاج تحاول تاني';
+
+    document.getElementById('resultMsg').textContent = msg;
+  }
+
+  // ---------- التشغيل ----------
+  window.onload = function() {
+    const hash = window.location.hash;
+
+    if (hash.startsWith('#q=')) {
+      // فيه أسئلة جوه اللينك → شغّل اللعبة على طول
+      try {
+        const encoded = hash.substring(3);
+        questions = decodeData(encoded);
+        qIndex = 0;
+        score = 0;
+        document.getElementById('createScreen').classList.add('hidden');
+        document.getElementById('gameScreen').classList.remove('hidden');
+        showQuestion();
+      } catch(e) {
+        alert('اللينك تالف أو ناقص');
+      }
+    } else {
+      // مفيش أسئلة → افتح شاشة الإنشاء
+      addQuestion();
+    }
+  };
+</script>
+
+</body>
+</html>
